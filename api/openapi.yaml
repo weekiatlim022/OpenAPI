@@ -1,0 +1,313 @@
+openapi: 3.0.0
+info:
+  title: OpenAPI Vehicle Tester
+  description: Example OpenAPI specification
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: http://localhost:8080/
+  description: Development Test Server
+paths:
+  /heartbeat:
+    get:
+      summary: Heartbeat of the server
+      description: Heartbeat of the server. It return with epoch time.
+      operationId: getHeartbeat
+      tags:
+        - core
+      responses:
+        '200':
+          description: Successful operation. It return with epoch in microseconds
+          content:
+            text/plain:
+              schema:
+                type: integer
+                format: int64
+                description: epoch in ms
+              example:
+                summary: epoch return in milli second
+                details: 1578624227 is Friday, January 10, 2020 10:43:47 AM GMT+08:00 and 940 is in milli-seconds
+                value: 1578624227940
+        '500':
+          description: Internal Server Error
+        default:
+          description: Unexpected error
+  /vehicle/{vehicle_id}:
+    get:
+      summary: get the vehicle information by vehicle id
+      operationId: getVehicleById
+      description: get vehicle information.
+      tags:
+        - vehicle_get
+      parameters:
+        - in: path
+          name: vehicle_id
+          required: true
+          description: vehicle id for retrieval of specific vehicle information.
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example:
+            summary: vehicle id
+            value: 2408
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vehicle'
+        '400':
+          description: Bad request. Likely data validation error. The vehicle id must be a number.
+        '404':
+          description: Resource not found. Specified vehicle is not avaliable.
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+  /vehicles:
+    get:
+      summary: Get all vehicle information
+      operationId: getVehicles
+      description: Retrieve information about all vehicles.
+      tags:
+        - vehicles
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vehicle'
+        '404':
+          description: No vehicles available.
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+  /vehicle:
+    post:
+      summary: Create new vehicle
+      operationId: createVehicle
+      description: Create new vehicle information.
+      tags:
+        - vehicle_create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/vehicle'
+      responses:
+        '201':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vehicle'
+        '400':
+          description: Bad Request.
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+  /vehicle/{vehicle_id}/create-or-update:
+    put:
+      summary: Create a new vehicle if not exist, update if exist.
+      operationId: createOrUpdateVehicle
+      description: Create a new vehicle if it doesn't exist. If it exists, update the existing vehicle.
+      tags:
+        - vehicle_createUpdate
+      parameters:
+        - in: path
+          name: vehicle_id
+          required: true
+          description: vehicle id for deciding whether to create or update.
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example:
+            summary: vehicle id
+            value: 2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/vehicle'
+      responses:
+        '200':
+          description: Updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vehicle'
+        '201':
+          description: Created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vehicle'
+        '400':
+          description: Bad request. Likely data validation error. The vehicle id must be a number.
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+  /vehicle/{vehicle_id}/update:
+    patch:
+      summary: Update exisiting vehicle
+      operationId: updateVehicle
+      description: Update the exisitng vehicle information.
+      tags:
+        - vehicle_update
+      parameters:
+        - in: path
+          name: vehicle_id
+          required: true
+          description: vehicle id for update
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example:
+            summary: vehicle id
+            value: 2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/vehicle'
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vehicle'
+        '400':
+          description: Bad request. Likely data validation error. The vehicle id must be a number.
+        '404':
+          description: Vehicle not found
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+    get:
+      summary: Get vehicle information
+      operationId: getUpdateVehicle
+      description: Retrieve the information of a specific vehicle.
+      tags:
+        - vehicle_update
+      parameters:
+        - in: path
+          name: vehicle_id
+          required: true
+          description: vehicle id for retrieval
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example:
+            summary: vehicle id
+            value: 2
+      responses:
+        '200':
+          description: Vehicle information successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vehicle'
+        '400':
+          description: Bad request. Likely data validation error. The vehicle id must be a number.
+        '404':
+          description: Vehicle not found
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+  /vehicle/{vehicle_id}/delete:
+    delete:
+      summary: Delete exisiting vehicle
+      operationId: deleteVehicle
+      description: Delete the exisitng vehicle information.
+      tags:
+        - vehicle_delete
+      parameters:
+        - in: path
+          name: vehicle_id
+          required: true
+          description: vehicle id for delete
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example:
+            summary: vehicle id
+            value: 2
+      responses:
+        '204':
+          description: Vehicle successfully deleted.
+        '400':
+          description: Bad request. Likely data validation error. The vehicle id must be a number.
+        '404':
+          description: Vehicle not found
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+    get:
+      summary: Get vehicle information
+      operationId: getDeleteVehicle
+      description: Retrieve the information of a specific vehicle.
+      tags:
+        - vehicle_delete
+      parameters:
+        - in: path
+          name: vehicle_id
+          required: true
+          description: vehicle id for retrieval
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example:
+            summary: vehicle id
+            value: 2
+      responses:
+        '200':
+          description: Vehicle information successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vehicle'
+        '400':
+          description: Bad request. Likely data validation error. The vehicle id must be a number.
+        '401':
+          description: Unauthorized. Wrong authentication.
+        '403':
+          description: Forbidden. Higher clearance required.
+        '404':
+          description: Vehicle not found.
+        '500':
+          description: Internal server error.
+        default:
+          description: Unexpected error.
+components:
+  schemas:
+    vehicle:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        passenger:
+          type: integer
